@@ -1,24 +1,44 @@
 import streamlit as st
-from modules import Home, Overview, Dataset, EDA, Inference
+import modules.Home as Home
+import modules.Overview as Overview
+import modules.Dataset as Dataset
+import modules.EDA as EDA
+import modules.Inference as Inference
 
-# Sidebar Menu
-st.sidebar.title("📌 Navigation")
-menu = st.sidebar.radio("Pilih Halaman:", (
-    "Home",
-    "Overview",
-    "Dataset",
-    "EDA",
-    "Inference"
-))
+st.set_page_config(page_title="Churn Prediction App", layout="wide", page_icon="📊")
 
-# Routing
-if menu == "Home":
+# === Sidebar Navigasi ===
+with st.sidebar:
+    st.markdown("## Navigasi")
+
+    # Navigasi menggunakan tombol biasa
+    if st.button("▶ Home"):
+        st.session_state.page = "Home"
+    if st.button("▶ Churn Overview"):
+        st.session_state.page = "Overview"
+    if st.button("▶ Dataset"):
+        st.session_state.page = "Dataset"
+    if st.button("▶ EDA"):
+        st.session_state.page = "EDA"
+    if st.button("▶ Prediksi"):
+        st.session_state.page = "Inference"
+
+    st.markdown("---")
+    st.caption("© 2025 | Churn Prediction App")
+
+# === Set default halaman jika belum ada ===
+if "page" not in st.session_state:
+    st.session_state.page = "Home"
+
+# === Routing Halaman ===
+page = st.session_state.page
+if page == "Home":
     Home.show()
-elif menu == "Overview":
+elif page == "Overview":
     Overview.show()
-elif menu == "Dataset":
+elif page == "Dataset":
     Dataset.show()
-elif menu == "EDA":
+elif page == "EDA":
     EDA.show()
-elif menu == "Inference":
+elif page == "Inference":
     Inference.show()
