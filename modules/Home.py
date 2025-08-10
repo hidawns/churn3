@@ -1,10 +1,36 @@
 import streamlit as st
 
 def show():
-    st.title("📊 Customer Churn Prediction App")
-    st.image("assets/churn_image.png", use_column_width=True)
-    st.markdown("""
-    Selamat datang di aplikasi prediksi churn pelanggan!  
-    Aplikasi ini menggunakan model machine learning **XGBoost** 
-    untuk memprediksi kemungkinan pelanggan akan berhenti menggunakan layanan.
-    """)
+    st.title("Churn Prediction App")
+    st.markdown("##### Optimalisasi Model XGBoost Menggunakan Teknik Hybrid Resampling SMOTE-ENN<br>dan Hyperparameter Tuning pada Pipeline Prediksi Churn Pelanggan", unsafe_allow_html=True)
+    st.write("Dikembangkan oleh: Hidayati Tri Winasis")
+
+    st.markdown("---")  
+    col1, col2 = st.columns([3, 1])
+    with col1: 
+        st.markdown("""
+        <div style='
+            background-color: #e8f2fc;
+            padding: 16px;
+            border-radius: 6px;
+            color: #004280;
+            line-height: 1.4;
+            text-align: justify'>
+        Aplikasi ini bertujuan untuk memprediksi kemungkinan seorang pelanggan melakukan churn. Aplikasi dibangun dengan mengimplementasikan machine learning melalui algoritma <b>XGBoost</b> 
+        yang dioptimalkan dengan teknik resampling <b>SMOTE-ENN</b> serta preprocessing yang disesuaikan untuk dataset terbaru.
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown(" ")
+        if st.button("**Pergi ke Halaman Prediksi**"):
+            st.session_state.page = "Inference"
+            st.rerun()
+        
+    with col2:
+        try:
+            st.image("assets/churn_image4.jpg", use_container_width=True)
+        except Exception:
+            # jika gambar tidak ada, tampilkan placeholder
+            st.info("Gambar aset tidak ditemukan di folder assets.")
+        
+    st.markdown("---")
