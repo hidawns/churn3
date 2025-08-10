@@ -27,10 +27,6 @@ def show():
             st.rerun()
         
     with col2:
-        try:
-            st.image("assets/churn_image4.jpg", use_container_width=True)
-        except Exception:
-            # jika gambar tidak ada, tampilkan placeholder
-            st.info("Gambar aset tidak ditemukan di folder assets.")
+        st.image("assets/churn_image4.jpg", use_container_width=True)
         
     st.markdown("---")
