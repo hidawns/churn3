@@ -7,75 +7,79 @@ def show():
     sns.set_theme(style="whitegrid", palette="pastel")
     st.title("📈 Exploratory Data Analysis (EDA)")
 
-    try:
-        df = pd.read_csv("merged_dataset.csv")
-    except FileNotFoundError:
-        st.error("File `merged_dataset.csv` tidak ditemukan di root repository. Mohon letakkan file dataset di root.")
-        return
+    df = pd.read_csv("merged_dataset.csv")
+    
+    # Drop columns not used for analysis
+    drop_cols = ['Customer ID', 'Customer Status', 'Churn Label', 'Churn Score', 'Churn Category', 'Churn Reason']
+    for col in drop_cols:
+        if col in df.columns:
+            df = df.drop(columns=col)
 
-    # some light cleanup for plotting readability
-    if 'Customer ID' in df.columns:
-        # jangan tunjukkan ID
-        pass
+    st.markdown("""EDA merupakan proses awal untuk memahami karakteristik dan pola data secara menyeluruh sebelum dilakukan pemodelan. 
+    Eksplorasi Data dilakukan untuk memperoleh pemahaman awal terkait data yang akan digunakan.""")
 
-    st.markdown("""EDA merupakan proses awal untuk memahami karakteristik dan pola data secara menyeluruh sebelum dilakukan pemodelan.""")
+    # === SECTION: Univariate - Numerical ===
+    with st.expander("📊 **Univariate Analysis - Fitur Numerik**", expanded=True):
+        st.markdown("Melihat sebaran nilai dari setiap fitur numerik untuk memahami pola distribusinya.")
 
-    # pilih kolom numerik yang umum untuk plot (maks 3)
-    numeric_cols = df.select_dtypes(include=['int64', 'float64']).columns.tolist()
-    # cobalah pilih tiga kolom yang relevan jika ada
-    chosen_numeric = []
-    candidates = ['tenure', 'MonthlyCharges', 'TotalCharges', 'Total Revenue', 'Avg Monthly GB Download', 'Satisfaction Score']
-    for c in candidates:
-        if c in numeric_cols and len(chosen_numeric) < 3:
-            chosen_numeric.append(c)
-    # fallback ke tiga numerik pertama
-    if len(chosen_numeric) == 0:
-        chosen_numeric = numeric_cols[:3]
+        numeric_cols = df.select_dtypes(include='number').columns.tolist()
+        numeric_cols.remove('Churn Value')
+        selected_num = st.selectbox("Select numeric feature to plot histogram", numeric_cols)
+        fig, ax = plt.subplots()
+        sns.histplot(df[selected_num].dropna(), kde=True, ax=ax)
+        st.pyplot(fig)
 
-    if chosen_numeric:
-        with st.expander("📊 **Univariate Analysis - Fitur Numerik**", expanded=True):
-            st.markdown("Melihat sebaran nilai dari setiap fitur numerik.")
-            fig, axs = plt.subplots(1, len(chosen_numeric), figsize=(6 * len(chosen_numeric), 4))
-            if len(chosen_numeric) == 1:
-                axs = [axs]
-            for i, col in enumerate(chosen_numeric):
-                sns.histplot(data=df, x=col, kde=True, ax=axs[i])
-                axs[i].set_title(f'Distribusi {col}')
+    # === SECTION: Univariate - Categorical ===
+    with st.expander("📊 **Univariate Analysis - Fitur Kategorikal**", expanded=False):
+        categorical_cols = df.select_dtypes(include='object').drop(columns='customerID').columns
+        st.markdown("Melihat sebaran kategori yang dimiliki setiap fitur kategorikal untuk memahami pola distribusinya.")
+
+        cat_cols = df.select_dtypes(include='object').columns.tolist()
+        if cat_cols:
+            selected_cat = st.selectbox("Select categorical feature to plot countplot", cat_cols)
+            fig, ax = plt.subplots()
+            sns.countplot(x=selected_cat, data=df, order=df[selected_cat].value_counts().index, ax=ax)
+            plt.xticks(rotation=45)
             st.pyplot(fig)
+        else:
+            st.write("No categorical features available.")
 
-    # kategorikal
-    categorical_cols = df.select_dtypes(include='object').columns.tolist()
-    if len(categorical_cols) > 0:
-        with st.expander("📊 **Univariate Analysis - Fitur Kategorikal**", expanded=False):
-            st.markdown("Melihat sebaran kategori dari beberapa fitur kategorikal.")
-            # tampilkan hingga 6 grafik
-            cols_to_plot = categorical_cols[:6]
-            fig, axs = plt.subplots(len(cols_to_plot), 1, figsize=(10, 4 * len(cols_to_plot)))
-            if len(cols_to_plot) == 1:
-                axs = [axs]
-            for i, col in enumerate(cols_to_plot):
-                sns.countplot(data=df, x=col, ax=axs[i])
-                axs[i].set_title(col)
-                axs[i].tick_params(axis='x', rotation=45)
-            st.pyplot(fig)
+    # === SECTION: Bivariate - Numerik vs Churn ===
+    with st.expander("🔎 **Bivariate Analysis - Fitur Numerik vs Churn**", expanded=False):
+        st.markdown("Menganalisis hubungan setiap fitur numerik terhadap masing-masing kelas dalam variabel target churn.")
 
-    # bivariate numeric vs churn jika ada
-    if 'Churn Value' in df.columns and len(chosen_numeric) > 0:
-        with st.expander("🔎 **Bivariate - Numerik vs Churn**", expanded=False):
-            fig, axs = plt.subplots(len(chosen_numeric), 1, figsize=(10, 5 * len(chosen_numeric)))
-            if len(chosen_numeric) == 1:
-                axs = [axs]
-            for i, col in enumerate(chosen_numeric):
-                sns.boxplot(data=df, x='Churn Value', y=col, ax=axs[i])
-                axs[i].set_title(f'{col} vs Churn')
-            st.pyplot(fig)
+        fig1, axs1 = plt.subplots(1, 3, figsize=(18, 5))
+        for i, col in enumerate(numeric_cols):
+            sns.boxplot(data=df, x='Churn', y=col, ax=axs1[i], palette='pastel')
+            axs1[i].set_title(f'{col} vs Churn', fontweight='bold')
+        st.pyplot(fig1)
 
-    # korelasi heatmap untuk numerik
-    numcols = df.select_dtypes(include=['int64', 'float64']).columns
-    if len(numcols) >= 2:
-        with st.expander("📊 **Heatmap**", expanded=False):
-            corr = df[numcols].corr()
-            fig, ax = plt.subplots(figsize=(10, 6))
-            sns.heatmap(corr, annot=True, cmap='coolwarm', ax=ax)
-            ax.set_title('Heatmap Korelasi Variabel Numerik')
-            st.pyplot(fig)
+        fig2, axs2 = plt.subplots(1, 3, figsize=(18, 6))
+        for i, col in enumerate(numeric_cols):
+            sns.violinplot(data=df, x='Churn', y=col, ax=axs2[i], palette='pastel')
+            axs2[i].set_title(f'{col} vs Churn', fontweight='bold')
+        st.pyplot(fig2)
+
+    # === SECTION: Bivariate - Fitur Kategorikal vs Churn ===
+    with st.expander("🔎 **Bivariate Analysis - Fitur Kategorikal vs Churn**", expanded=False):
+        st.markdown( "Menganalisis hubungan setiap kategori pada fitur kategorikal terhadap masing-masing kelas dalam variabel target churn.")
+       
+        fig, axs = plt.subplots(6, 3, figsize=(18, 30))
+        axs = axs.ravel()
+        for i, col in enumerate(categorical_cols):
+            sns.countplot(data=df, x=col, hue='Churn', ax=axs[i], palette='pastel')
+            axs[i].set_title(f'{col} vs Churn', fontweight='bold')
+            axs[i].tick_params(axis='x', rotation=45)
+        for j in range(len(categorical_cols), len(axs)):
+            fig.delaxes(axs[j])
+        fig.tight_layout(h_pad=3)
+        st.pyplot(fig)
+
+    # === SECTION: Korelasi Heatmap ===
+    with st.expander("📊 **Heatmap**", expanded=False):
+        st.markdown("Menganalisis nilai korelasi antar variabel numerik.")
+
+    corr = df.corr()
+    fig, ax = plt.subplots(figsize=(12, 10))
+    sns.heatmap(corr, annot=False, cmap='coolwarm', ax=ax)
+    st.pyplot(fig)
