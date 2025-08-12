@@ -13,11 +13,17 @@ def show():
     st.markdown("""EDA merupakan proses awal untuk memahami karakteristik dan pola data secara menyeluruh sebelum dilakukan pemodelan. 
     Eksplorasi Data dilakukan untuk memperoleh pemahaman awal terkait data yang akan digunakan.""")
 
-    numeric_features_selected = df.drop(columns=[col for col in excluded_columns if col in df.columns]) \
-                                    .select_dtypes(include=['number']).columns.tolist()
-    categorical_features_selected = df.drop(columns=[col for col in excluded_columns if col in df.columns]) \
-                                      .select_dtypes(include=['object']).columns.tolist()
-    churn_col = 'Churn Value' if 'Churn Value' in df.columns else 'Churn'  # Sesuaikan jika beda nama
+    numeric_features_selected = df.select_dtypes(include=['number']).columns.tolist()
+    categorical_features_selected = df.select_dtypes(include=['object']).columns.tolist()
+    # Hilangkan kolom target dari analisis
+    if churn_col and churn_col in numeric_features_selected:
+        numeric_features_selected.remove(churn_col)
+    if churn_col and churn_col in categorical_features_selected:
+        categorical_features_selected.remove(churn_col)
+    # Hilangkan kolom ID atau identitas unik
+    id_like_cols = [col for col in df.columns if 'id' in col.lower()]
+    numeric_features_selected = [col for col in numeric_features_selected if col not in id_like_cols]
+    categorical_features_selected = [col for col in categorical_features_selected if col not in id_like_cols]
 
     # === SECTION: Univariate - Numerical ===
     with st.expander("📊 **Univariate Analysis - Fitur Numerik**", expanded=True):
