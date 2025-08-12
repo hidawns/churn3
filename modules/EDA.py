@@ -6,7 +6,7 @@ import math
 
 def show():
     sns.set_theme(style="whitegrid", palette="pastel")
-    st.title("📈 Exploratory Data Analysis (EDA) jhshavsahvavda")
+    st.title("📈 Exploratory Data Analysis (EDA)")
 
     df = pd.read_csv("merged_dataset.csv")
 
