@@ -26,6 +26,17 @@ def show():
     excluded_columns = [col for col in excluded_columns if col in df.columns]
 
     # Pilih fitur numerik & kategorikal dengan aman
+    # Hanya kolom yang ada di dataset
+    drop_num_cols = [c for c in excluded_columns if c in df.columns]
+    df_num = df.drop(columns=drop_num_cols) if drop_num_cols else df.copy()
+    
+    # Pilih kolom numerik
+    numeric_features_selected = df_num.select_dtypes(include=['number']).columns.tolist()
+    
+    # Untuk kategorikal
+    drop_cat_cols = [c for c in excluded_columns if c in df.columns]
+    df_cat = df.drop(columns=drop_cat_cols) if drop_cat_cols else df.copy()
+    categorical_features_selected = df_cat.select_dtypes(include=['object']).columns.tolist()
     df_num = df.drop(columns=excluded_columns) if excluded_columns else df.copy()
     numeric_features_selected = df_num.select_dtypes(include=['number']).columns.tolist()
 
