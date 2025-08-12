@@ -14,10 +14,9 @@ def show():
     Eksplorasi Data dilakukan untuk memperoleh pemahaman awal terkait data yang akan digunakan.""")
 
     excluded_columns = ['Customer ID', 'Count', 'Quarter', 'Customer Status', 'Churn Label', 'Churn Score', 'Churn Category', 'Churn Reason']
-    numeric_features_selected = df.drop(columns=[col for col in excluded_columns if col in df.columns]) \
-                                    .select_dtypes(include=['number']).columns.tolist()
-    categorical_features_selected = df.drop(columns=[col for col in excluded_columns if col in df.columns]) \
-                                      .select_dtypes(include=['object']).columns.tolist()
+    existing_excluded = [col for col in excluded_columns if col in df.columns]
+    numeric_features_selected = df.drop(columns=existing_excluded).select_dtypes(include=['number']).columns.tolist()
+    categorical_features_selected = df.drop(columns=existing_excluded).select_dtypes(include=['object']).columns.tolist()
     churn_col = 'Churn Value' if 'Churn Value' in df.columns else 'Churn'  # Sesuaikan jika beda nama
 
     # === SECTION: Univariate - Numerical ===
