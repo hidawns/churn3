@@ -9,7 +9,7 @@ def show():
     st.title("📈 Exploratory Data Analysis (EDA)")
 
     # Load data
-    df = pd.read_csv("IBM Churn.csv")
+    df = pd.read_csv("merged_dataset.csv")
 
     st.markdown("""
     EDA merupakan proses awal untuk memahami karakteristik dan pola data secara menyeluruh sebelum dilakukan pemodelan. 
