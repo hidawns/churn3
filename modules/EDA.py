@@ -79,7 +79,7 @@ def show():
     with st.expander("🔎 **Bivariate Analysis - Fitur Kategorikal vs Churn**", expanded=False):
         st.markdown( "Menganalisis hubungan setiap kategori pada fitur kategorikal terhadap masing-masing kelas dalam variabel target churn.")
        
-         if churn_col not in df.columns:
+        if churn_col not in df.columns:
             st.warning(f"Kolom target churn '{churn_col}' tidak ditemukan di data.")
         else:
             cols = 4
