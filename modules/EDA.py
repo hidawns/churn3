@@ -39,7 +39,7 @@ def show():
 
     # === SECTION: Univariate - Categorical ===
     with st.expander("📊 **Univariate Analysis - Fitur Kategorikal**", expanded=False):
-        categorical_cols = df.select_dtypes(include='object').drop(columns='customerID').columns
+        categorical_cols = df.select_dtypes(include='object')
         st.markdown("Melihat sebaran kategori yang dimiliki setiap fitur kategorikal untuk memahami pola distribusinya.")
 
         len_categorical = len(categorical_features_selected)
