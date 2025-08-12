@@ -18,25 +18,18 @@ def show():
 
     # Tentukan kolom yang dikecualikan
     excluded_columns = [
-        'Customer ID', 'Count', 'Quarter', 'Customer Status',
-        'Churn Label', 'Churn Score', 'Churn Category', 'Churn Reason'
-    ]
+    'Customer ID', 'Count', 'Quarter', 'Customer Status',
+    'Churn Label', 'Churn Score', 'Churn Category', 'Churn Reason'
+]
 
-    # Pastikan hanya kolom yang ada di data yang di-drop
+# Pastikan hanya kolom yang ada di data yang di-drop
     excluded_columns = [col for col in excluded_columns if col in df.columns]
-
-    # Pilih fitur numerik & kategorikal
+    
     numeric_features_selected = df.drop(columns=excluded_columns, errors='ignore') \
                                    .select_dtypes(include=['number']).columns.tolist()
     categorical_features_selected = df.drop(columns=excluded_columns, errors='ignore') \
                                        .select_dtypes(include=['object']).columns.tolist()
 
-    # Tentukan nama kolom churn
-    churn_col = None
-    for possible_col in ['Churn Value', 'Churn']:
-        if possible_col in df.columns:
-            churn_col = possible_col
-            break
 
     # === SECTION: Univariate - Numerical ===
     with st.expander("📊 **Univariate Analysis - Fitur Numerik**", expanded=True):
