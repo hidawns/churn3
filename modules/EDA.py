@@ -5,7 +5,7 @@ import seaborn as sns
 
 def show():
     sns.set_theme(style="whitegrid", palette="pastel")
-    st.title("📈 Exploratory Data Analysis (EDA)")
+    st.title("📈 Exploratory Data Analysis (EDA) jhshavsahvavda")
 
     df = pd.read_csv("merged_dataset.csv")
 
