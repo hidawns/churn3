@@ -7,4 +7,3 @@ imblearn
 seaborn
 matplotlib
 scipy
-math
