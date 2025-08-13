@@ -9,7 +9,7 @@ def load_pickle(file_path):
         return pickle.load(f)
 
 def show():
-    st.header("🔮 Prediksi Churn Customer allahu")
+    st.header("🔍 Prediksi Churn Pelanggan")
 
     # Load model dan preprocessing tools
     model = load_pickle("final_churn_model.pkl")
@@ -18,7 +18,7 @@ def show():
     feature_columns = load_pickle("feature_columns.pkl")
     categorical_columns = load_pickle("categorical_columns.pkl")  # kolom kategori dari training
 
-    st.write("Masukkan data customer di bawah ini:")
+    st.write("Lengkapi formulir di bawah ini untuk memprediksi apakah seorang pelanggan berpotensi untuk churn atau tidak.")
 
     # ===== Form Input =====
     with st.form("input_form"):
@@ -33,18 +33,16 @@ def show():
             Dependents = st.selectbox("Dependents", ["No", "Yes"])
             ReferredFriend = st.selectbox("Referred a Friend", ["No", "Yes"])
             NumReferrals = st.number_input("Number of Referrals", min_value=0, value=0)
-
-        with col2:
             TenureMonths = st.number_input("Tenure in Months", min_value=0, value=12)
             Offer = st.selectbox("Offer", ["None", "Offer A", "Offer B", "Offer C", "Offer D", "Offer E", "Unknown"])
             PhoneService = st.selectbox("Phone Service", ["No", "Yes"])
             AvgMonthlyLongDist = st.number_input("Avg Monthly Long Distance Charges", min_value=0.0, value=10.0)
             MultipleLines = st.selectbox("Multiple Lines", ["No", "Yes"])
+        
+        with col2:
             InternetService = st.selectbox("Internet Service", ["No", "Yes"])
             InternetType = st.selectbox("Internet Type", ["Cable", "DSL", "Fiber Optic", "Unknown"])
             AvgMonthlyGB = st.number_input("Avg Monthly GB Download", min_value=0.0, value=10.0)
-
-        with col3:
             OnlineSecurity = st.selectbox("Online Security", ["No", "Yes"])
             OnlineBackup = st.selectbox("Online Backup", ["No", "Yes"])
             DeviceProtection = st.selectbox("Device Protection Plan", ["No", "Yes"])
@@ -55,6 +53,8 @@ def show():
             UnlimitedData = st.selectbox("Unlimited Data", ["No", "Yes"])
             Contract = st.selectbox("Contract", ["Month-to-month", "One year", "Two year"])
             PaperlessBilling = st.selectbox("Paperless Billing", ["No", "Yes"])
+            
+        with col3:
             PaymentMethod = st.selectbox("Payment Method", ["Bank Withdrawal", "Credit card", "Mailed Check"])
             MonthlyCharge = st.number_input("Monthly Charge", min_value=0.0, value=50.0)
             TotalCharges = st.number_input("Total Charges", min_value=0.0, value=100.0)
