@@ -9,13 +9,14 @@ def load_pickle(file_path):
         return pickle.load(f)
 
 def show():
-    st.header("🔮 Prediksi Churn Customer c")
+    st.header("🔮 Prediksi Churn Customer plz")
 
     # Load model dan preprocessing tools
     model = load_pickle("final_churn_model.pkl")
     scaler = load_pickle("scaler_churn.pkl")
     encoder = load_pickle("encoder_churn.pkl")
     feature_columns = load_pickle("feature_columns.pkl")
+    categorical_columns = load_pickle("categorical_columns.pkl")  # kolom kategori dari training
 
     st.write("Masukkan data customer di bawah ini:")
 
@@ -66,7 +67,7 @@ def show():
 
     if submitted:
         # ===== DataFrame awal =====
-        input_dict = {
+        df_input = pd.DataFrame({
             'Gender': [Gender],
             'Age': [Age],
             'Under 30': [Under30],
@@ -100,15 +101,13 @@ def show():
             'Total Revenue': [TotalRevenue],
             'Satisfaction Score': [SatisfactionScore],
             'CLTV': [CLTV]
-        }
-
-        df_input = pd.DataFrame(input_dict)
+        })
 
         # ===== Preprocessing persis seperti training =====
         df_input['Offer'] = df_input['Offer'].fillna('Unknown')
         df_input['Internet Type'] = df_input['Internet Type'].fillna('Unknown')
 
-        df_input['Was_Refunded'] = (df_input['Total Revenue'] < df_input['Monthly Charge']).astype(int)  # asumsi placeholder
+        df_input['Was_Refunded'] = (df_input['Total Revenue'] < df_input['Monthly Charge']).astype(int)  # placeholder logic
         df_input['Had_Extra_Data_Charge'] = 0  # placeholder
         df_input['Has_Dependents'] = (df_input['Dependents'] == 'Yes').astype(int)
 
@@ -124,11 +123,10 @@ def show():
         fitur_standarisasi = [col for col in numeric_features if col not in exclude_cols]
         df_input[fitur_standarisasi] = scaler.transform(df_input[fitur_standarisasi])
 
-        # Encoding kategorikal
-        categorical_cols = df_input.select_dtypes(include='object').columns
-        df_input[categorical_cols] = encoder.transform(df_input[categorical_cols]).astype(int)
+        # Encoding kategorikal pakai kolom dari training
+        df_input[categorical_columns] = encoder.transform(df_input[categorical_columns]).astype(int)
 
-        # Pastikan urutan kolom sama
+        # Pastikan urutan kolom sesuai model
         df_input = df_input.reindex(columns=feature_columns, fill_value=0)
 
         # ===== Prediksi =====
