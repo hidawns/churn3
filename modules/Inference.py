@@ -151,13 +151,13 @@ def show():
         
         if pred == 1:
             st.error(f"❌ **Pelanggan tersebut berpotensi untuk churn**\n"
-                     "**Tindakan yang direkomendasikan:**\n"
+                     "\n**Tindakan yang direkomendasikan:**\n"
                      "- Lakukan pendekatan untuk memahami kebutuhan serta ketidakpuasan pelanggan.\n"
                      "- Pertimbangkan untuk menawarkan benefit seperti diskon eksklusif maupun upgrade layanan.\n"
                      "- Tinjau kembali riwayat langganan pelanggan untuk mengidentifikasi gangguan atau masalah pada layanan.")
         else:
-            st.info(f"✅ **Pelanggan tersebut diprediksi akan tetap loyal (non-churn).**\n"
-                    "**Insight:**\n"
+            st.info(f"✅ **Pelanggan tersebut diprediksi akan tetap loyal (non-churn)**\n"
+                    "\n**Insight:**\n"
                     "- Pelanggan tersebut tidak menunjukkan kecenderungan untuk churn.\n"
                     "- Pertahankan loyalitas pelanggan tersebut dengan memberi reward maupun penawaran yang menarik.\n"
                     "- Terus berikan pengalaman layanan yang konsisten dan memuaskan pada pelanggan yang loyal.")
