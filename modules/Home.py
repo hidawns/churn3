@@ -23,7 +23,7 @@ def show():
         st.markdown(" ")
         if st.button("**Pergi ke Halaman Prediksi**"):
             st.session_state.page = "Inference"
-            st.experimental_rerun()
+            st.rerun()
 
     with col2:
         st.image("assets/churn_image4.jpg", use_container_width=True)
