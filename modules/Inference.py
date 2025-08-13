@@ -144,7 +144,7 @@ def show():
 
         # Pastikan urutan kolom sesuai model
         df_input = df_input.reindex(columns=feature_columns, fill_value=0)
-
+        '''
         # ===== Prediksi =====
         pred = model.predict(df_input)[0]
         prob = model.predict_proba(df_input)[0][1]
@@ -152,3 +152,26 @@ def show():
         st.subheader("Hasil Prediksi")
         st.write("Churn" if pred == 1 else "Tidak Churn")
         st.write(f"Probabilitas Churn: {prob:.2%}")
+        '''
+
+        # ===== Prediksi =====
+        pred = model.predict(df_input)[0]
+        prob = model.predict_proba(df_input)[0][1]
+        
+        st.subheader("Hasil Prediksi")
+        
+        if pred == 1:
+            st.error(f"❌ **Pelanggan tersebut berpotensi untuk churn**\n"
+                     f"Probabilitas Churn: **{prob:.2%}**\n\n"
+                     "**Tindakan yang direkomendasikan:**\n"
+                     "- Lakukan pendekatan untuk memahami kebutuhan serta ketidakpuasan pelanggan.\n"
+                     "- Pertimbangkan untuk menawarkan benefit seperti diskon eksklusif maupun upgrade layanan.\n"
+                     "- Tinjau kembali riwayat langganan pelanggan untuk mengidentifikasi gangguan atau masalah pada layanan.")
+        else:
+            st.info(f"✅ **Pelanggan tersebut diprediksi akan tetap loyal (non-churn).**\n"
+                    f"Probabilitas Churn: **{prob:.2%}**\n\n"
+                    "**Insight:**\n"
+                    "- Pelanggan tersebut tidak menunjukkan kecenderungan untuk churn.\n"
+                    "- Pertahankan loyalitas pelanggan tersebut dengan memberi reward maupun penawaran yang menarik.\n"
+                    "- Terus berikan pengalaman layanan yang konsisten dan memuaskan pada pelanggan yang loyal.")
+
