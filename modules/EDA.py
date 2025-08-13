@@ -38,6 +38,7 @@ def show():
         for j in range(len_numeric, len(axes)):
             axes[j].set_visible(False)
         plt.tight_layout()
+        plt.subplots_adjust(hspace=0.5) 
         st.pyplot(fig)
 
     # === SECTION: Univariate - Categorical ===
