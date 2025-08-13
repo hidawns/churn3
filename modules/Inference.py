@@ -4,7 +4,7 @@ import numpy as np
 import pickle
 
 def show():
-    st.title("🔮 Churn Prediction Inference")
+    st.title("🔮 Churn Prediction Inference ")
 
     # Load model & preprocessing tools
     with open("final_churn_model.pkl", "rb") as f:
