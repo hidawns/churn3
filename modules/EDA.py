@@ -30,11 +30,11 @@ def show():
         len_numeric = len(numeric_features_selected)
         cols = 4
         rows = math.ceil(len_numeric / cols)
-        fig, axes = plt.subplots(rows, cols, figsize=(cols * 5, rows * 5))
+        fig, axes = plt.subplots(rows, cols, figsize=(cols * 5, rows * 4))
         axes = axes.flatten()
         for i, col in enumerate(numeric_features_selected):
             sns.histplot(data=df, x=col, kde=True, ax=axes[i])
-            axes[i].set_title(f'Distribution of {col}', fontweight='bold')
+            axes[i].set_title(f'Distribution of {col}', fontweight='bold', pad=15)
         for j in range(len_numeric, len(axes)):
             axes[j].set_visible(False)
         plt.tight_layout()
