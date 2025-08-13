@@ -9,7 +9,7 @@ def load_pickle(file_path):
         return pickle.load(f)
 
 def show():
-    st.header("🔮 Prediksi Churn Customer pls")
+    st.header("🔮 Prediksi Churn Customer allahu")
 
     # Load model dan preprocessing tools
     model = load_pickle("final_churn_model.pkl")
@@ -133,6 +133,11 @@ def show():
         for col in categorical_columns:
             if col not in df_input.columns:
                 df_input[col] = "Unknown"
+
+        # Pastikan semua nilai kategori valid
+        for idx, col in enumerate(categorical_columns):
+            allowed_cats = list(encoder.categories_[idx])
+            df_input[col] = df_input[col].apply(lambda x: x if x in allowed_cats else allowed_cats[0])
 
         # Encoding kategorikal sesuai urutan training
         df_input[categorical_columns] = encoder.transform(df_input[categorical_columns]).astype(int)
