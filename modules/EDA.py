@@ -34,7 +34,7 @@ def show():
         axes = axes.flatten()
         for i, col in enumerate(numeric_features_selected):
             sns.histplot(data=df, x=col, kde=True, ax=axes[i])
-            axes[i].set_title(f'Distribution of {col}', fontweight='bold', pad=15)
+            axes[i].set_title(f'Distribution of {col}', fontweight='bold')
         for j in range(len_numeric, len(axes)):
             axes[j].set_visible(False)
         plt.tight_layout()
