@@ -37,9 +37,10 @@ def show():
             Offer = st.selectbox("Offer", ["None", "Offer A", "Offer B", "Offer C", "Offer D", "Offer E", "Unknown"])
             PhoneService = st.selectbox("Phone Service", ["No", "Yes"])
             AvgMonthlyLongDist = st.number_input("Avg Monthly Long Distance Charges", min_value=0.0, value=10.0)
-            MultipleLines = st.selectbox("Multiple Lines", ["No", "Yes"])
+            
         
         with col2:
+            MultipleLines = st.selectbox("Multiple Lines", ["No", "Yes"])
             InternetService = st.selectbox("Internet Service", ["No", "Yes"])
             InternetType = st.selectbox("Internet Type", ["Cable", "DSL", "Fiber Optic", "Unknown"])
             AvgMonthlyGB = st.number_input("Avg Monthly GB Download", min_value=0.0, value=10.0)
@@ -52,9 +53,10 @@ def show():
             StreamingMusic = st.selectbox("Streaming Music", ["No", "Yes"])
             UnlimitedData = st.selectbox("Unlimited Data", ["No", "Yes"])
             Contract = st.selectbox("Contract", ["Month-to-month", "One year", "Two year"])
-            PaperlessBilling = st.selectbox("Paperless Billing", ["No", "Yes"])
+            
             
         with col3:
+            PaperlessBilling = st.selectbox("Paperless Billing", ["No", "Yes"])
             PaymentMethod = st.selectbox("Payment Method", ["Bank Withdrawal", "Credit card", "Mailed Check"])
             MonthlyCharge = st.number_input("Monthly Charge", min_value=0.0, value=50.0)
             TotalCharges = st.number_input("Total Charges", min_value=0.0, value=100.0)
