@@ -2,8 +2,8 @@ import streamlit as st
 
 def show():
     st.title("Churn Prediction App")
-    st.markdown("##### Optimalisasi Model Baru Churn dengan Dataset dan Metode Terbaru")
-    st.write("Dikembangkan oleh: [Nama Kamu]")
+    st.markdown("##### Optimalisasi Model XGBoost dengan Teknik Hybrid Resampling SMOTE-ENN dan Hyperparameter Tuning GridSearchCV dalam Prediksi Churn Pelanggan")
+    st.write("Dikembangkan oleh: Hidayati Tri Winasis")
 
     st.markdown("---")  
     col1, col2 = st.columns([3, 1])
@@ -26,6 +26,6 @@ def show():
             st.experimental_rerun()
 
     with col2:
-        st.image("assets/churn_image1.jpg", use_container_width=True)
+        st.image("assets/churn_image4.jpg", use_container_width=True)
 
     st.markdown("---")
