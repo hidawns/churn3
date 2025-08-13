@@ -30,7 +30,7 @@ def show():
         len_numeric = len(numeric_features_selected)
         cols = 4
         rows = math.ceil(len_numeric / cols)
-        fig, axes = plt.subplots(rows, cols, figsize=(cols * 6, rows * 6))
+        fig, axes = plt.subplots(rows, cols, figsize=(cols * 6, rows * 5))
         axes = axes.flatten()
         for i, col in enumerate(numeric_features_selected):
             sns.histplot(data=df, x=col, kde=True, ax=axes[i])
