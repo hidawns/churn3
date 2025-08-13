@@ -1,154 +1,146 @@
+# Inference.py
 import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
 
-def show():
-    st.title("🔮 CChurn Prediction Inference")
+# === Load Model & Preprocessing Tools ===
+with open("final_churn_model.pkl", "rb") as f:
+    model = pickle.load(f)
 
-    # === Load model & preprocessing tools ===
-    with open("final_churn_model.pkl", "rb") as f:
-        model = pickle.load(f)
+with open("scaler_churn.pkl", "rb") as f:
+    scaler = pickle.load(f)
 
-    with open("scaler_churn.pkl", "rb") as f:
-        scaler = pickle.load(f)
+with open("encoder_churn.pkl", "rb") as f:
+    encoder = pickle.load(f)
 
-    with open("encoder_churn.pkl", "rb") as f:
-        encoder = pickle.load(f)
+with open("feature_columns.pkl", "rb") as f:
+    feature_columns = pickle.load(f)
 
-    with open("feature_columns.pkl", "rb") as f:
-        feature_columns = pickle.load(f)
+st.title("Customer Churn Prediction")
+st.write("Masukkan data customer untuk memprediksi kemungkinan churn.")
 
-    # === Form Input User ===
-    st.subheader("Masukkan Data Pelanggan (Mentah)")
+# === Input Form ===
+with st.form("churn_form"):
+    # Numerical inputs
+    Age = st.number_input("Age", min_value=0, max_value=120)
+    Number_of_Referrals = st.number_input("Number of Referrals", min_value=0)
+    Tenure_in_Months = st.number_input("Tenure in Months", min_value=0)
+    Avg_Monthly_Long_Distance_Charges = st.number_input("Avg Monthly Long Distance Charges", min_value=0.0)
+    Avg_Monthly_GB_Download = st.number_input("Avg Monthly GB Download", min_value=0.0)
+    Monthly_Charge = st.number_input("Monthly Charge", min_value=0.0)
+    Total_Charges = st.number_input("Total Charges", min_value=0.0)
+    Total_Long_Distance_Charges = st.number_input("Total Long Distance Charges", min_value=0.0)
+    Total_Revenue = st.number_input("Total Revenue", min_value=0.0)
+    Satisfaction_Score = st.number_input("Satisfaction Score", min_value=1, max_value=5)
+    CLTV = st.number_input("CLTV", min_value=0.0)
 
-    with st.form("churn_form"):
-        # Numeric
-        age = st.number_input("Age", min_value=0, step=1)
-        num_referrals = st.number_input("Number of Referrals", min_value=0.0)
-        tenure = st.number_input("Tenure in Months", min_value=0, step=1)
-        avg_long_dist = st.number_input("Avg Monthly Long Distance Charges", min_value=0.0)
-        avg_gb_download = st.number_input("Avg Monthly GB Download", min_value=0.0)
-        monthly_charge = st.number_input("Monthly Charge", min_value=0.0)
-        total_charges = st.number_input("Total Charges", min_value=0.0)
-        total_long_dist = st.number_input("Total Long Distance Charges", min_value=0.0)
-        total_revenue = st.number_input("Total Revenue", min_value=0.0)
-        cltv = st.number_input("CLTV", min_value=0.0)
-        total_refunds = st.number_input("Total Refunds", min_value=0.0)
-        total_extra_data = st.number_input("Total Extra Data Charges", min_value=0.0)
-        num_dependents = st.number_input("Number of Dependents", min_value=0, step=1)
-        satisfaction_score = st.number_input("Satisfaction Score", min_value=0, max_value=5, step=1)
+    # Binary categorical
+    Gender = st.selectbox("Gender", ["Female", "Male"])
+    Under_30 = st.selectbox("Under 30", ["No", "Yes"])
+    Senior_Citizen = st.selectbox("Senior Citizen", ["No", "Yes"])
+    Married = st.selectbox("Married", ["No", "Yes"])
+    Dependents = st.selectbox("Dependents", ["No", "Yes"])
+    Referred_a_Friend = st.selectbox("Referred a Friend", ["No", "Yes"])
+    Phone_Service = st.selectbox("Phone Service", ["No", "Yes"])
+    Multiple_Lines = st.selectbox("Multiple Lines", ["No", "Yes"])
+    Internet_Service = st.selectbox("Internet Service", ["No", "Yes"])
+    Online_Security = st.selectbox("Online Security", ["No", "Yes"])
+    Online_Backup = st.selectbox("Online Backup", ["No", "Yes"])
+    Device_Protection_Plan = st.selectbox("Device Protection Plan", ["No", "Yes"])
+    Premium_Tech_Support = st.selectbox("Premium Tech Support", ["No", "Yes"])
+    Streaming_TV = st.selectbox("Streaming TV", ["No", "Yes"])
+    Streaming_Movies = st.selectbox("Streaming Movies", ["No", "Yes"])
+    Streaming_Music = st.selectbox("Streaming Music", ["No", "Yes"])
+    Unlimited_Data = st.selectbox("Unlimited Data", ["No", "Yes"])
+    Paperless_Billing = st.selectbox("Paperless Billing", ["No", "Yes"])
 
-        # Categorical
-        gender = st.selectbox("Gender", ["Female", "Male"])
-        under_30 = st.selectbox("Under 30", ["No", "Yes"])
-        senior_citizen = st.selectbox("Senior Citizen", ["No", "Yes"])
-        married = st.selectbox("Married", ["No", "Yes"])
-        dependents = st.selectbox("Dependents", ["No", "Yes"])
-        referred_friend = st.selectbox("Referred a Friend", ["No", "Yes"])
-        offer = st.selectbox("Offer", ["None", "Offer A", "Offer B", "Offer C", "Offer D", "Offer E", "Unknown"])
-        phone_service = st.selectbox("Phone Service", ["No", "Yes"])
-        multiple_lines = st.selectbox("Multiple Lines", ["No", "Yes"])
-        internet_service = st.selectbox("Internet Service", ["No", "Yes"])
-        internet_type = st.selectbox("Internet Type", ["Cable", "DSL", "Fiber Optic", "Unknown"])
-        online_security = st.selectbox("Online Security", ["No", "Yes"])
-        online_backup = st.selectbox("Online Backup", ["No", "Yes"])
-        device_protection = st.selectbox("Device Protection Plan", ["No", "Yes"])
-        premium_support = st.selectbox("Premium Tech Support", ["No", "Yes"])
-        streaming_tv = st.selectbox("Streaming TV", ["No", "Yes"])
-        streaming_movies = st.selectbox("Streaming Movies", ["No", "Yes"])
-        streaming_music = st.selectbox("Streaming Music", ["No", "Yes"])
-        unlimited_data = st.selectbox("Unlimited Data", ["No", "Yes"])
-        contract = st.selectbox("Contract", ["Month-to-month", "One year", "Two year"])
-        paperless_billing = st.selectbox("Paperless Billing", ["No", "Yes"])
-        payment_method = st.selectbox("Payment Method", ["Bank Withdrawal", "Credit card", "Mailed Check"])
+    # Multi-category
+    Offer = st.selectbox("Offer", ["None", "Offer A", "Offer B", "Offer C", "Offer D", "Unknown"])
+    Internet_Type = st.selectbox("Internet Type", ["Cable", "DSL", "Fiber Optic", "Unknown"])
+    Contract = st.selectbox("Contract", ["Month-to-month", "One year", "Two year"])
+    Payment_Method = st.selectbox("Payment Method", ["Bank Withdrawal", "Credit card", "Mailed Check"])
 
-        submit = st.form_submit_button("Predict Churn")
+    # Additional numeric for feature engineering
+    Total_Refunds = st.number_input("Total Refunds", min_value=0.0)
+    Total_Extra_Data_Charges = st.number_input("Total Extra Data Charges", min_value=0.0)
+    Number_of_Dependents = st.number_input("Number of Dependents", min_value=0)
 
-    if submit:
-        # === Buat DataFrame dari input mentah ===
-        raw_data = pd.DataFrame([{
-            "Customer ID": cust_id,
-            "Count": None,
-            "Quarter": None,
-            "Gender": gender,
-            "Age": age,
-            "Under 30": under_30,
-            "Senior Citizen": senior_citizen,
-            "Married": married,
-            "Dependents": dependents,
-            "Referred a Friend": referred_friend,
-            "Number of Referrals": num_referrals,
-            "Tenure in Months": tenure,
-            "Offer": offer,
-            "Phone Service": phone_service,
-            "Avg Monthly Long Distance Charges": avg_long_dist,
-            "Multiple Lines": multiple_lines,
-            "Internet Service": internet_service,
-            "Internet Type": internet_type,
-            "Avg Monthly GB Download": avg_gb_download,
-            "Online Security": online_security,
-            "Online Backup": online_backup,
-            "Device Protection Plan": device_protection,
-            "Premium Tech Support": premium_support,
-            "Streaming TV": streaming_tv,
-            "Streaming Movies": streaming_movies,
-            "Streaming Music": streaming_music,
-            "Unlimited Data": unlimited_data,
-            "Contract": contract,
-            "Paperless Billing": paperless_billing,
-            "Payment Method": payment_method,
-            "Monthly Charge": monthly_charge,
-            "Total Charges": total_charges,
-            "Total Long Distance Charges": total_long_dist,
-            "Total Revenue": total_revenue,
-            "Satisfaction Score": satisfaction_score,
-            "Churn Value": None,  # tidak digunakan
-            "CLTV": cltv,
-            "Total Refunds": total_refunds,
-            "Total Extra Data Charges": total_extra_data,
-            "Number of Dependents": num_dependents
-        }])
+    submitted = st.form_submit_button("Predict")
 
-        # === Step 1: Drop kolom tidak digunakan ===
-        drop_cols = ['Customer ID', 'Count', 'Quarter',
-                     'Customer Status', 'Churn Label', 'Churn Score',
-                     'Churn Category', 'Churn Reason']
-        raw_data.drop(columns=[c for c in drop_cols if c in raw_data.columns], inplace=True)
+if submitted:
+    # Buat DataFrame dari input
+    input_data = pd.DataFrame([{
+        "Gender": Gender,
+        "Age": Age,
+        "Under 30": Under_30,
+        "Senior Citizen": Senior_Citizen,
+        "Married": Married,
+        "Dependents": Dependents,
+        "Referred a Friend": Referred_a_Friend,
+        "Number of Referrals": Number_of_Referrals,
+        "Tenure in Months": Tenure_in_Months,
+        "Offer": Offer,
+        "Phone Service": Phone_Service,
+        "Avg Monthly Long Distance Charges": Avg_Monthly_Long_Distance_Charges,
+        "Multiple Lines": Multiple_Lines,
+        "Internet Service": Internet_Service,
+        "Internet Type": Internet_Type,
+        "Avg Monthly GB Download": Avg_Monthly_GB_Download,
+        "Online Security": Online_Security,
+        "Online Backup": Online_Backup,
+        "Device Protection Plan": Device_Protection_Plan,
+        "Premium Tech Support": Premium_Tech_Support,
+        "Streaming TV": Streaming_TV,
+        "Streaming Movies": Streaming_Movies,
+        "Streaming Music": Streaming_Music,
+        "Unlimited Data": Unlimited_Data,
+        "Contract": Contract,
+        "Paperless Billing": Paperless_Billing,
+        "Payment Method": Payment_Method,
+        "Monthly Charge": Monthly_Charge,
+        "Total Charges": Total_Charges,
+        "Total Long Distance Charges": Total_Long_Distance_Charges,
+        "Total Revenue": Total_Revenue,
+        "Satisfaction Score": Satisfaction_Score,
+        "CLTV": CLTV,
+        "Total Refunds": Total_Refunds,
+        "Total Extra Data Charges": Total_Extra_Data_Charges,
+        "Number of Dependents": Number_of_Dependents
+    }])
 
-        # === Step 2: Handle missing ===
-        raw_data['Offer'] = raw_data['Offer'].fillna('Unknown')
-        raw_data['Internet Type'] = raw_data['Internet Type'].fillna('Unknown')
+    # === REPLICATE PREPROCESSING ===
+    # Handle missing values
+    input_data["Offer"] = input_data["Offer"].fillna("Unknown")
+    input_data["Internet Type"] = input_data["Internet Type"].fillna("Unknown")
 
-        # === Step 3: Feature engineering ===
-        raw_data['Was_Refunded'] = (raw_data['Total Refunds'] > 0).astype(int)
-        raw_data['Had_Extra_Data_Charge'] = (raw_data['Total Extra Data Charges'] > 0).astype(int)
-        raw_data['Has_Dependents'] = (raw_data['Number of Dependents'] > 0).astype(int)
-        raw_data.drop(columns=['Total Refunds', 'Total Extra Data Charges', 'Number of Dependents'], inplace=True)
+    # Feature engineering
+    input_data["Was_Refunded"] = (input_data["Total Refunds"] > 0).astype(int)
+    input_data["Had_Extra_Data_Charge"] = (input_data["Total Extra Data Charges"] > 0).astype(int)
+    input_data["Has_Dependents"] = (input_data["Number of Dependents"] > 0).astype(int)
+    input_data.drop(columns=["Total Refunds", "Total Extra Data Charges", "Number of Dependents"], inplace=True)
 
-        # === Step 4: Log transform ===
-        for col in ['Avg Monthly GB Download', 'Total Long Distance Charges', 'Total Revenue', 'Number of Referrals']:
-            raw_data[col] = np.log1p(raw_data[col])
+    # Log transform
+    for col in ["Avg Monthly GB Download", "Total Long Distance Charges", "Total Revenue", "Number of Referrals"]:
+        input_data[col] = np.log1p(input_data[col])
 
-        # === Step 5: Scaling ===
-        numeric_features = raw_data.select_dtypes(include='number').columns.tolist()
-        exclude_cols = ['Churn Value', 'Has_Dependents', 'Was_Refunded', 'Had_Extra_Data_Charge', 'Satisfaction Score']
-        fitur_standarisasi = [col for col in numeric_features if col not in exclude_cols]
-        raw_data[fitur_standarisasi] = scaler.transform(raw_data[fitur_standarisasi])
+    # Scaling numeric continuous
+    numeric_features = input_data.select_dtypes(include="number").columns.tolist()
+    exclude_cols = ["Has_Dependents", "Was_Refunded", "Had_Extra_Data_Charge", "Satisfaction Score"]
+    fitur_standarisasi = [col for col in numeric_features if col not in exclude_cols]
+    input_data[fitur_standarisasi] = scaler.transform(input_data[fitur_standarisasi])
 
-        # === Step 6: Encoding ===
-        categorical_cols = raw_data.select_dtypes(include='object').columns
-        raw_data[categorical_cols] = encoder.transform(raw_data[categorical_cols]).astype(int)
+    # Encoding categorical
+    categorical_cols = input_data.select_dtypes(include="object").columns
+    input_data[categorical_cols] = encoder.transform(input_data[categorical_cols]).astype(int)
 
-        # === Step 7: Reorder columns ===
-        raw_data = raw_data.reindex(columns=feature_columns)
+    # Reorder columns sesuai training
+    input_data = input_data[feature_columns]
 
-        # === Step 8: Predict ===
-        pred = model.predict(raw_data)[0]
-        prob = model.predict_proba(raw_data)[0][1]
+    # Predict
+    prediction = model.predict(input_data)[0]
+    pred_proba = model.predict_proba(input_data)[0][1]
 
-        # === Output ===
-        if pred == 1:
-            st.error(f"🚨 Pelanggan berpotensi CHURN dengan probabilitas {prob:.2%}")
-        else:
-            st.success(f"✅ Pelanggan diprediksi TIDAK CHURN dengan probabilitas {1-prob:.2%}")
+    st.subheader("Hasil Prediksi")
+    st.write(f"Prediksi Churn: **{'Ya' if prediction == 1 else 'Tidak'}**")
+    st.write(f"Probabilitas Churn: **{pred_proba:.2%}**")
