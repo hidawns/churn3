@@ -4,9 +4,9 @@ import numpy as np
 import pickle
 
 def show():
-    st.title("🔮 Churn Prediction Inference ")
+    st.title("🔮 CChurn Prediction Inference")
 
-    # Load model & preprocessing tools
+    # === Load model & preprocessing tools ===
     with open("final_churn_model.pkl", "rb") as f:
         model = pickle.load(f)
 
@@ -19,11 +19,11 @@ def show():
     with open("feature_columns.pkl", "rb") as f:
         feature_columns = pickle.load(f)
 
-    # === Form Input ===
+    # === Form Input User ===
     st.subheader("Masukkan Data Pelanggan (Mentah)")
 
     with st.form("churn_form"):
-        # Numeric inputs
+        # Numeric
         age = st.number_input("Age", min_value=0, step=1)
         num_referrals = st.number_input("Number of Referrals", min_value=0.0)
         tenure = st.number_input("Tenure in Months", min_value=0, step=1)
@@ -39,7 +39,7 @@ def show():
         num_dependents = st.number_input("Number of Dependents", min_value=0, step=1)
         satisfaction_score = st.number_input("Satisfaction Score", min_value=0, max_value=5, step=1)
 
-        # Categorical inputs
+        # Categorical
         gender = st.selectbox("Gender", ["Female", "Male"])
         under_30 = st.selectbox("Under 30", ["No", "Yes"])
         senior_citizen = st.selectbox("Senior Citizen", ["No", "Yes"])
@@ -66,33 +66,27 @@ def show():
         submit = st.form_submit_button("Predict Churn")
 
     if submit:
-        # Buat DataFrame mentah
+        # === Buat DataFrame dari input mentah ===
         raw_data = pd.DataFrame([{
-            "Age": age,
-            "Number of Referrals": num_referrals,
-            "Tenure in Months": tenure,
-            "Avg Monthly Long Distance Charges": avg_long_dist,
-            "Avg Monthly GB Download": avg_gb_download,
-            "Monthly Charge": monthly_charge,
-            "Total Charges": total_charges,
-            "Total Long Distance Charges": total_long_dist,
-            "Total Revenue": total_revenue,
-            "CLTV": cltv,
-            "Total Refunds": total_refunds,
-            "Total Extra Data Charges": total_extra_data,
-            "Number of Dependents": num_dependents,
-            "Satisfaction Score": satisfaction_score,
+            "Customer ID": cust_id,
+            "Count": None,
+            "Quarter": None,
             "Gender": gender,
+            "Age": age,
             "Under 30": under_30,
             "Senior Citizen": senior_citizen,
             "Married": married,
             "Dependents": dependents,
             "Referred a Friend": referred_friend,
+            "Number of Referrals": num_referrals,
+            "Tenure in Months": tenure,
             "Offer": offer,
             "Phone Service": phone_service,
+            "Avg Monthly Long Distance Charges": avg_long_dist,
             "Multiple Lines": multiple_lines,
             "Internet Service": internet_service,
             "Internet Type": internet_type,
+            "Avg Monthly GB Download": avg_gb_download,
             "Online Security": online_security,
             "Online Backup": online_backup,
             "Device Protection Plan": device_protection,
@@ -103,43 +97,57 @@ def show():
             "Unlimited Data": unlimited_data,
             "Contract": contract,
             "Paperless Billing": paperless_billing,
-            "Payment Method": payment_method
+            "Payment Method": payment_method,
+            "Monthly Charge": monthly_charge,
+            "Total Charges": total_charges,
+            "Total Long Distance Charges": total_long_dist,
+            "Total Revenue": total_revenue,
+            "Satisfaction Score": satisfaction_score,
+            "Churn Value": None,  # tidak digunakan
+            "CLTV": cltv,
+            "Total Refunds": total_refunds,
+            "Total Extra Data Charges": total_extra_data,
+            "Number of Dependents": num_dependents
         }])
 
-        # === Preprocessing sesuai training ===
-        # Handle missing
+        # === Step 1: Drop kolom tidak digunakan ===
+        drop_cols = ['Customer ID', 'Count', 'Quarter',
+                     'Customer Status', 'Churn Label', 'Churn Score',
+                     'Churn Category', 'Churn Reason']
+        raw_data.drop(columns=[c for c in drop_cols if c in raw_data.columns], inplace=True)
+
+        # === Step 2: Handle missing ===
         raw_data['Offer'] = raw_data['Offer'].fillna('Unknown')
         raw_data['Internet Type'] = raw_data['Internet Type'].fillna('Unknown')
 
-        # Feature engineering
+        # === Step 3: Feature engineering ===
         raw_data['Was_Refunded'] = (raw_data['Total Refunds'] > 0).astype(int)
         raw_data['Had_Extra_Data_Charge'] = (raw_data['Total Extra Data Charges'] > 0).astype(int)
         raw_data['Has_Dependents'] = (raw_data['Number of Dependents'] > 0).astype(int)
-
         raw_data.drop(columns=['Total Refunds', 'Total Extra Data Charges', 'Number of Dependents'], inplace=True)
 
-        # Log transform
+        # === Step 4: Log transform ===
         for col in ['Avg Monthly GB Download', 'Total Long Distance Charges', 'Total Revenue', 'Number of Referrals']:
             raw_data[col] = np.log1p(raw_data[col])
 
-        # Scaling numeric features
+        # === Step 5: Scaling ===
         numeric_features = raw_data.select_dtypes(include='number').columns.tolist()
-        exclude_cols = ['Has_Dependents', 'Was_Refunded', 'Had_Extra_Data_Charge', 'Satisfaction Score']
+        exclude_cols = ['Churn Value', 'Has_Dependents', 'Was_Refunded', 'Had_Extra_Data_Charge', 'Satisfaction Score']
         fitur_standarisasi = [col for col in numeric_features if col not in exclude_cols]
         raw_data[fitur_standarisasi] = scaler.transform(raw_data[fitur_standarisasi])
 
-        # Encoding categorical features
+        # === Step 6: Encoding ===
         categorical_cols = raw_data.select_dtypes(include='object').columns
         raw_data[categorical_cols] = encoder.transform(raw_data[categorical_cols]).astype(int)
 
-        # Reorder columns sesuai training
+        # === Step 7: Reorder columns ===
         raw_data = raw_data.reindex(columns=feature_columns)
 
-        # Predict
+        # === Step 8: Predict ===
         pred = model.predict(raw_data)[0]
         prob = model.predict_proba(raw_data)[0][1]
 
-        # Output
+        # === Output ===
         if pred == 1:
             st.error(f"🚨 Pelanggan berpotensi CHURN dengan probabilitas {prob:.2%}")
         else:
