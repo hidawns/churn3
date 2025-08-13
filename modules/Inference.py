@@ -9,7 +9,7 @@ def load_pickle(file_path):
         return pickle.load(f)
 
 def show():
-    st.header("🔮 Prediksi Churn Customer plz")
+    st.header("🔮 Prediksi Churn Customer pls")
 
     # Load model dan preprocessing tools
     model = load_pickle("final_churn_model.pkl")
@@ -60,6 +60,9 @@ def show():
             TotalCharges = st.number_input("Total Charges", min_value=0.0, value=100.0)
             TotalLongDistCharges = st.number_input("Total Long Distance Charges", min_value=0.0, value=20.0)
             TotalRevenue = st.number_input("Total Revenue", min_value=0.0, value=500.0)
+            TotalRefunds = st.number_input("Total Refunds", min_value=0.0, value=0.0)
+            TotalExtraDataCharges = st.number_input("Total Extra Data Charges", min_value=0.0, value=0.0)
+            NumDependents = st.number_input("Number of Dependents", min_value=0, value=0)
             SatisfactionScore = st.number_input("Satisfaction Score", min_value=1, max_value=5, value=3)
             CLTV = st.number_input("CLTV", min_value=0.0, value=1000.0)
 
@@ -99,19 +102,22 @@ def show():
             'Total Charges': [TotalCharges],
             'Total Long Distance Charges': [TotalLongDistCharges],
             'Total Revenue': [TotalRevenue],
+            'Total Refunds': [TotalRefunds],
+            'Total Extra Data Charges': [TotalExtraDataCharges],
+            'Number of Dependents': [NumDependents],
             'Satisfaction Score': [SatisfactionScore],
             'CLTV': [CLTV]
         })
 
-        # ===== Preprocessing persis seperti training =====
+        # ===== Preprocessing sama persis dengan training =====
         df_input['Offer'] = df_input['Offer'].fillna('Unknown')
         df_input['Internet Type'] = df_input['Internet Type'].fillna('Unknown')
 
-        df_input['Was_Refunded'] = (df_input['Total Revenue'] < df_input['Monthly Charge']).astype(int)  # placeholder logic
-        df_input['Had_Extra_Data_Charge'] = 0  # placeholder
-        df_input['Has_Dependents'] = (df_input['Dependents'] == 'Yes').astype(int)
-
-        df_input.drop(columns=['Dependents'], inplace=True)
+        # Feature engineering
+        df_input['Was_Refunded'] = (df_input['Total Refunds'] > 0).astype(int)
+        df_input['Had_Extra_Data_Charge'] = (df_input['Total Extra Data Charges'] > 0).astype(int)
+        df_input['Has_Dependents'] = (df_input['Number of Dependents'] > 0).astype(int)
+        df_input.drop(columns=['Total Refunds', 'Total Extra Data Charges', 'Number of Dependents'], inplace=True)
 
         # Log transform
         for col in ['Avg Monthly GB Download', 'Total Long Distance Charges', 'Total Revenue', 'Number of Referrals']:
@@ -123,7 +129,12 @@ def show():
         fitur_standarisasi = [col for col in numeric_features if col not in exclude_cols]
         df_input[fitur_standarisasi] = scaler.transform(df_input[fitur_standarisasi])
 
-        # Encoding kategorikal pakai kolom dari training
+        # Pastikan semua kolom kategori dari training ada
+        for col in categorical_columns:
+            if col not in df_input.columns:
+                df_input[col] = "Unknown"
+
+        # Encoding kategorikal sesuai urutan training
         df_input[categorical_columns] = encoder.transform(df_input[categorical_columns]).astype(int)
 
         # Pastikan urutan kolom sesuai model
