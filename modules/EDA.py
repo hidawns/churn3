@@ -30,7 +30,7 @@ def show():
         len_numeric = len(numeric_features_selected)
         cols = 4
         rows = math.ceil(len_numeric / cols)
-        fig, axes = plt.subplots(rows, cols, figsize=(cols * 5, rows * 4))
+        fig, axes = plt.subplots(rows, cols, figsize=(cols * 5, rows * 5))
         axes = axes.flatten()
         for i, col in enumerate(numeric_features_selected):
             sns.histplot(data=df, x=col, kde=True, ax=axes[i])
@@ -64,7 +64,7 @@ def show():
             df['Churn Value'] = df['Churn Value'].astype(str)
             numeric_features = [col for col in numeric_features_selected if col != 'Churn Value']
             len_numeric = len(numeric_features)
-            cols = 5
+            cols = 4
             rows = math.ceil(len_numeric / cols)
             fig, axes = plt.subplots(rows, cols, figsize=(cols * 5, rows * 5))
             axes = axes.flatten()
@@ -87,7 +87,7 @@ def show():
             len_categorical = len(categorical_features_selected)
             cols = 4
             rows = math.ceil(len_categorical / cols)
-            fig, axes = plt.subplots(rows, cols, figsize=(cols * 5, rows * 5))
+            fig, axes = plt.subplots(rows, cols, figsize=(cols * 6, rows * 6))
             axes = axes.flatten()
             for i, col in enumerate(categorical_features_selected):
                 sns.countplot(data=df, x=col, hue='Churn Value', 
